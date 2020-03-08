@@ -1,0 +1,392 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "ACT-R Model",
+	"patterns": [
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#handled-dsl-call"
+		},
+		{
+			"include": "#generic-dsl-call"
+		},
+		{
+			"include": "#expression"
+		}
+	],
+	"repository": {
+		"constant":
+		{
+			"match": "\\b(?i:null|nil)\\b",
+			"name": "constant.language.lisp"
+		},
+
+		"numeric": {
+			"match": "\\b((0(x|X)[0-9a-fA-F]*)|(([0-9]+\\.?[0-9]*)|(\\.[0-9]+))((e|E)(\\+|-)?[0-9]+)?)(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\\b",
+			"name": "constant.numeric.lisp"
+		},
+		"string":
+		{
+			"begin": "\"",
+			"beginCaptures": {
+			  "0": {
+				"name": "punctuation.definition.string.begin.lisp"
+			  }
+			},
+			"end": "\"",
+			"endCaptures": {
+			  "0": {
+				"name": "punctuation.definition.string.end.lisp"
+			  }
+			},
+			"name": "string.quoted.double.lisp",
+			"patterns": [
+			  {
+				"match": "\\\\.",
+				"name": "constant.character.escape.lisp"
+			  }
+			]
+		  },
+		"bare-word":{
+			"name": "string.unquoted",
+			"match": "[a-zA-Z0-9\\-]+"
+		},
+		"expression": {
+			"patterns": [
+				{ "include": "#paren-expression" },
+				{ "include": "#comment" },
+				{ "include": "#numeric"}
+			]
+		  },
+		"handled-dsl-call":{
+			"patterns": [
+				{ "include": "#define-model"},
+				{ "include": "#define-chunks"}
+			]
+		},
+		"define-model": {
+			"begin": "\\(()(define-model) ([a-zA-Z0-9\\-]+)",
+			"end": "\\)",
+			"beginCaptures": {
+				"1": { "name": "punctuation.paren.open" },
+				"2": { "name": "keyword.define_model" },
+				"3": { "name": "entity.name.type" }
+
+			},
+			"endCaptures": {
+			"0": { "name": "punctuation.paren.close" }
+			},
+			"name": "meta.model",
+			"patterns": [
+				{ "include": "#model-definitions"},
+				{ "include": "#comment"},
+				{ "include": "#expression" }
+
+				]},
+
+		"model-definitions": {
+			"patterns": [
+				{ "include": "#chunk-type" },
+				{ "include": "#sgp" },
+				{ "include": "#add-dm" },
+				{ "include": "#production" },
+				{
+					"name": "meta.model.declare_buffer_usage",
+					"begin": "\\((declare\\-buffer\\-usage)\\s+([a-zA-Z\\-]+)\\s+([a-zA-Z\\-]+)",
+					"beginCaptures": {
+						"1": { "name": "keyword"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "entity.name.type.chunk"}
+					},
+					"end": "\\)",
+					"patterns": [
+						{
+							"name": "keyword",
+							"match": ":[a-zA-Z]+"
+						},
+						{
+							"name": "variable.name",
+							"match": "[a-zA-Z]+"
+						}
+					]
+				},
+				{ "include": "#handled-dsl-call"},
+				{ "include": "#generic-dsl-call"},
+				{ "include": "#paren-expression" },
+				{ "include": "#comment" }]
+		},
+		"chunk-type": {
+			"begin": "\\(()(chunk-type) ([a-zA-Z\\-]+) ",
+			"end": "\\)",
+			"beginCaptures": {
+				"1": { "name": "meta.chunktype.open" },
+				"2": { "name": "keyword.chunk_type" },
+				"3": { "name": "entity.name.type" }
+			},
+			"endCaptures": {
+				"0": { "name": "meta.chunktype.close" }
+			},
+			"name": "meta.chunktype",
+			"patterns": [{
+				"name": "variable.parameter",
+				"match": "[a-zA-Z0-9]"
+			}]
+		},
+		"add-dm":{
+			"begin": "\\(()(add-dm)",
+			"end": "\\)",
+			"beginCaptures": {
+				"1": { "name": "meta.dm.add.begin"},
+				"2": { "name": "keyword.add_dm"}
+			},
+			"endCaptures": {
+				"0": { "name": "meta.dm.add.end"}
+			},
+			"name": "meta.dm.add",
+			"patterns": [
+				{
+					"name":"meta.dm.fact",
+					"begin": "\\(([a-zA-Z0-9\\-\\+]+) (ISA|isa) ([a-zA-Z0-9\\-]+)",
+					"end": "\\)",
+					"beginCaptures": {
+						"1": { "name": "variable.other"},
+						"2": { "name": "keyword"},
+						"3": { "name": "entity.name.type"}
+					},
+					"endCaptures": {
+						"0": { "name": "meta.dm.fact.end"}
+					},
+					"patterns":
+					[
+						{
+							"begin": "([a-zA-Z0-9]+) ",
+							"end": " |(?=\\))",
+							"beginCaptures": {
+								"0": { "name": "meta.dm.slot"},
+								"1": { "name": "variable.parameter"}
+							},
+							"patterns": [
+								{
+									"include": "#numeric"
+								},
+								{
+									"include": "#bare-word"
+								},
+								{
+									"include": "#string"
+								}
+							]
+						}
+					]
+
+				},
+				{ "include": "#dm-fact"}
+			]
+
+		},
+		"dm-fact":{
+			"begin": "\\(",
+			"end": "\\)",
+			"name": "meta.dm.add.fact"
+		},
+		"sgp":{
+			"begin": "\\((sgp)",
+			"end": "\\)",
+			"name": "meta.sgp",
+			"captures": {
+				"1": { "name": "keyword.sgp"}
+			},
+			"patterns": [
+				{ 
+					"match": ":[a-z\\-]+",
+					"name": "constant.language.actr"
+				},
+				{ "include": "#constant"},
+				{ "include": "#numeric"},
+				{ "include": "#bare-word"},
+				{ "include": "#paren-expression"},
+				{ "include": "#comment"}
+			]
+		},
+		"production": {
+			"begin": "(\\()(p|P) ((?:\\w|\\-)+)",
+			"beginCaptures": {
+				"1": { "name": "meta.production.begin"},
+				"2": { "name": "keyword.production"},
+				"3": { "name": "entity.name.function.production"},
+				"4": { "name": "docstring" }
+			},
+			"endCaptures": {
+				"0": { "name": "meta.production.end"}
+			},
+			"end": "\\)",
+			"name": "meta.production",
+			"patterns": [
+				{
+					"name": "meta.production.buffer",
+					"match": "(=)([a-z\\-]+)(>)",
+					"captures": {
+						"1": { "name": "keyword.control"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "keyword"}
+					}
+				},
+				{
+					"name": "meta.production.buffer.request",
+					"match": "(\\+)([a-z\\-]+)(>)",
+					"captures": {
+						"1": { "name": "keyword.control"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "keyword"}
+					}
+				},
+				{
+					"name": "meta.production.buffer.clear",
+					"match": "(-)([a-z\\-]+)(>)",
+					"captures": {
+						"1": { "name": "keyword.control"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "keyword"}
+					}
+				},
+				{
+					"name": "meta.production.buffer.query",
+					"match": "(\\?)([a-z\\-]+)(>)",
+					"captures": {
+						"1": { "name": "keyword.control"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "keyword"}
+					}
+				},
+				{
+					"name": "meta.production.buffer.overwrite",
+					"match": "(@)([a-z\\-]+)(>)",
+					"captures": {
+						"1": { "name": "keyword.control"},
+						"2": { "name": "entity.name.type.buffer"},
+						"3": { "name": "keyword"}
+					}
+				},
+				{
+					"name": "meta.production.isaChunk",
+					"match": "(isa|ISA)\\s+([a-z\\-]+)",
+					"captures": {
+						"1": { "name": "keyword" },
+						"2": { "name": "entity.name.type.chunk"}
+					}
+				},
+				{
+					"name": "meta.production.expression",
+					"match": "(-\\s+)?([a-zA-Z0-9\\-]+)\\s+([a-zA-Z0-9=\\-\"]+)",
+					"captures": {
+						"1": { "name": "keyword.control" },
+						"2": { "name": "variable.parameter" },
+						"3": {
+							"name": "meta.production.expression.value",
+							"patterns":[
+								{ "include": "#constant"},
+								{ "include": "#production-variable"},
+								{ "include": "#numeric"},
+								{ "include": "#string" },
+								{ "include": "#bare-word"}
+
+							]
+					}
+					}
+				},
+				{
+					"name": "meta.production.arrow",
+					"match": "==>",
+					"captures": {
+						"0": { "name": "keyword" }
+					}
+				},
+				{
+					"name": "meta.production.output",
+					"begin": "(!output!)\\s+\\(",
+					"end": "\\)",
+
+					"beginCaptures": {
+						"1": { "name": "string" }
+					},
+
+					"patterns": [
+						{ "include": "#bare-word"},
+						{ "include": "#production-variable"}
+					]
+				},
+				{
+					"include": "#comment"
+				}
+			]
+		},
+		"production-variable": {
+			"name": "meta.production.variable",
+			"match": "(=)([a-zA-Z0-9\\-]+)",
+			"captures": {
+				"1": { "name": "keyword"},
+				"2": { "name": "variable"}
+			}
+		},
+		"define-chunks":{
+			"name": "meta.define_chunks",
+			"begin": "(\\()(define\\-chunks)",
+			"end": "\\)",
+			"beginCaptures": {
+				"1": { "name": "punctuation.paren.open" },
+				"2": { "name": "keyword" }
+			  },
+			  "endCaptures": {
+				"0": { "name": "punctuation.paren.close" }
+			  },
+			"patterns": [
+				{
+					"name": "entity.name.type",
+					"match": "\\b[a-zA-Z0-9]+\\b"
+				}
+			]
+		},
+
+		"paren-expression": {
+			"begin": "\\(",
+			"end": "\\)",
+			"beginCaptures": {
+			  "0": { "name": "punctuation.paren.open" }
+			},
+			"endCaptures": {
+			  "0": { "name": "punctuation.paren.close" }
+			},
+			"name": "expression.group",
+			"patterns": [{ "include": "#expression" }]
+		  },
+		"comment": {
+			"name": "comment.line.double-semicolon",
+			"begin": ";;",
+			"end": "$"
+		},
+		"generic-dsl-call":{
+			"name": "meta.dslCall",
+			"begin": "(\\()([a-z\\-]+)",
+			"end": "\\)",
+			"beginCaptures": {
+				"1": { "name": "meta.dsl.open"},
+				"2": {
+					"name": "meta.dsl.name",
+					"patterns": [{ "include": "#unspecified-dsl-call-name" }]
+				}
+			},
+			"endCaptures": {
+				"0": { "name": "meta.dsl.close" }
+			},
+			"patterns": [
+				{ "include": "#paren-expression"}
+			]
+		},
+		"unspecified-dsl-call-name":{
+			"name": "keyword",
+			"match": "(?i:goal\\-focus|clear\\-all|spp|set\\-base\\-levels|set\\-similarities|install\\-device)"
+		}
+	},
+	"scopeName": "source.actr"
+}
