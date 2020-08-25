@@ -3,8 +3,12 @@
     "displayName": "ACT-R Model Lang",
     "description": "Syntax Support Prototype for ACT-R Model files",
     "publisher": "fmagin",
-    "keywords": [ "actr", "act-r", "lisp" ],
-    "version": "0.0.1",
+    "keywords": [
+        "actr",
+        "act-r",
+        "lisp"
+    ],
+    "version": "0.1.0",
     "engines": {
         "vscode": "^1.42.0"
     },
@@ -22,7 +26,7 @@
                 ],
                 "extensions": [
                     ".lisp",
-		    ".actr"
+                    ".actr"
                 ],
                 "configuration": "./language-configuration.json"
             }
@@ -38,9 +42,9 @@
     "devDependencies": {
         "js-yaml": "^3.13.1"
     },
-    "repository":{
-	"type": "git",
-	"url": "https://github.com/fmagin/vscode-act-r.git"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fmagin/vscode-act-r.git"
     },
     "homepage": "https://github.com/fmagin/vscode-act-rblob/master/README.md"
 }
