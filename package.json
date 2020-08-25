@@ -21,7 +21,8 @@
                     "actr"
                 ],
                 "extensions": [
-                    ".lisp"
+                    ".lisp",
+		    ".actr"
                 ],
                 "configuration": "./language-configuration.json"
             }
