@@ -1,0 +1,9 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+        "label": "Grammer: Convert YAML to JSON",
+        "command": "npx",
+        "args": ["js-yaml", "${workspaceFolder}/syntaxes/actr.tmLanguage.yaml", ">", "${workspaceFolder}/syntaxes/actr.tmLanguage.json"],
+        "type": "shell"
+    }]
+}

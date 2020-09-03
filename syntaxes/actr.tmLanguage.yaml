@@ -1,0 +1,315 @@
+$schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: ACT-R Model
+patterns:
+- include: '#comment'
+- include: '#handled-dsl-call'
+- include: '#generic-dsl-call'
+- include: '#expression'
+repository:
+  add-dm:
+    begin: \(()(add-dm)
+    beginCaptures:
+      '1':
+        name: meta.dm.add.begin
+      '2':
+        name: keyword.add_dm
+    end: \)
+    endCaptures:
+      '0':
+        name: meta.dm.add.end
+    name: meta.dm.add
+    patterns:
+    - begin: \(([a-zA-Z0-9\-\+]+) (ISA|isa) ([a-zA-Z0-9\-]+)
+      beginCaptures:
+        '1':
+          name: variable.other
+        '2':
+          name: keyword
+        '3':
+          name: entity.name.type
+      end: \)
+      endCaptures:
+        '0':
+          name: meta.dm.fact.end
+      name: meta.dm.fact
+      patterns:
+      - begin: '([a-zA-Z0-9]+) '
+        beginCaptures:
+          '0':
+            name: meta.dm.slot
+          '1':
+            name: variable.parameter
+        end: ' |(?=\))'
+        patterns:
+        - include: '#numeric'
+        - include: '#bare-word'
+        - include: '#string'
+    - include: '#dm-fact'
+  bare-word:
+    match: '[a-zA-Z0-9\-]+'
+    name: string.unquoted
+  chunk-type:
+    begin: '\(()(chunk-type) ([a-zA-Z\-]+) '
+    beginCaptures:
+      '1':
+        name: meta.chunktype.open
+      '2':
+        name: keyword.chunk_type
+      '3':
+        name: entity.name.type
+    end: \)
+    endCaptures:
+      '0':
+        name: meta.chunktype.close
+    name: meta.chunktype
+    patterns:
+    - match: '[a-zA-Z0-9]'
+      name: variable.parameter
+  comment:
+    begin: ;;
+    end: $
+    name: comment.line.double-semicolon
+  constant:
+    match: \b(?i:null|nil)\b
+    name: constant.language.lisp
+  define-chunks:
+    begin: (\()(define\-chunks)
+    beginCaptures:
+      '1':
+        name: punctuation.paren.open
+      '2':
+        name: keyword
+    end: \)
+    endCaptures:
+      '0':
+        name: punctuation.paren.close
+    name: meta.define_chunks
+    patterns:
+    - match: \b[a-zA-Z0-9]+\b
+      name: entity.name.type
+  define-model:
+    begin: \(()(define-model) ([a-zA-Z0-9\-]+)
+    beginCaptures:
+      '1':
+        name: punctuation.paren.open
+      '2':
+        name: keyword.define_model
+      '3':
+        name: entity.name.type
+    end: \)
+    endCaptures:
+      '0':
+        name: punctuation.paren.close
+    name: meta.model
+    patterns:
+    - include: '#model-definitions'
+    - include: '#comment'
+    - include: '#expression'
+  dm-fact:
+    begin: \(
+    end: \)
+    name: meta.dm.add.fact
+  expression:
+    patterns:
+    - include: '#paren-expression'
+    - include: '#comment'
+    - include: '#numeric'
+  generic-dsl-call:
+    begin: (\()([a-z\-]+)
+    beginCaptures:
+      '1':
+        name: meta.dsl.open
+      '2':
+        name: meta.dsl.name
+        patterns:
+        - include: '#unspecified-dsl-call-name'
+    end: \)
+    endCaptures:
+      '0':
+        name: meta.dsl.close
+    name: meta.dslCall
+    patterns:
+    - include: '#paren-expression'
+  handled-dsl-call:
+    patterns:
+    - include: '#define-model'
+    - include: '#define-chunks'
+  model-definitions:
+    patterns:
+    - include: '#chunk-type'
+    - include: '#sgp'
+    - include: '#add-dm'
+    - include: '#production'
+    - begin: \((declare\-buffer\-usage)\s+([a-zA-Z\-]+)\s+([a-zA-Z\-]+)
+      beginCaptures:
+        '1':
+          name: keyword
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: entity.name.type.chunk
+      end: \)
+      name: meta.model.declare_buffer_usage
+      patterns:
+      - match: :[a-zA-Z]+
+        name: keyword
+      - match: '[a-zA-Z]+'
+        name: variable.name
+    - include: '#handled-dsl-call'
+    - include: '#generic-dsl-call'
+    - include: '#paren-expression'
+    - include: '#comment'
+  numeric:
+    match: \b((0(x|X)[0-9a-fA-F]*)|(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)(L|l|UL|ul|u|U|F|f|ll|LL|ull|ULL)?\b
+    name: constant.numeric.lisp
+  paren-expression:
+    begin: \(
+    beginCaptures:
+      '0':
+        name: punctuation.paren.open
+    end: \)
+    endCaptures:
+      '0':
+        name: punctuation.paren.close
+    name: expression.group
+    patterns:
+    - include: '#expression'
+  production:
+    begin: (\()(p|P) ((?:\w|\-)+)
+    beginCaptures:
+      '1':
+        name: meta.production.begin
+      '2':
+        name: keyword.production
+      '3':
+        name: entity.name.function.production
+      '4':
+        name: docstring
+    end: \)
+    endCaptures:
+      '0':
+        name: meta.production.end
+    name: meta.production
+    patterns:
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: keyword
+      match: (=)([a-z\-]+)(>)
+      name: meta.production.buffer
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: keyword
+      match: (\+)([a-z\-]+)(>)
+      name: meta.production.buffer.request
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: keyword
+      match: (-)([a-z\-]+)(>)
+      name: meta.production.buffer.clear
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: keyword
+      match: (\?)([a-z\-]+)(>)
+      name: meta.production.buffer.query
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: entity.name.type.buffer
+        '3':
+          name: keyword
+      match: (@)([a-z\-]+)(>)
+      name: meta.production.buffer.overwrite
+    - captures:
+        '1':
+          name: keyword
+        '2':
+          name: entity.name.type.chunk
+      match: (isa|ISA)\s+([a-z\-]+)
+      name: meta.production.isaChunk
+    - captures:
+        '1':
+          name: keyword.control
+        '2':
+          name: variable.parameter
+        '3':
+          name: meta.production.expression.value
+          patterns:
+          - include: '#constant'
+          - include: '#production-variable'
+          - include: '#numeric'
+          - include: '#string'
+          - include: '#bare-word'
+      match: (-\s+)?([a-zA-Z0-9\-]+)\s+([a-zA-Z0-9=\-"]+)
+      name: meta.production.expression
+    - captures:
+        '0':
+          name: keyword
+      match: ==>
+      name: meta.production.arrow
+    - begin: (!output!)\s+\(
+      beginCaptures:
+        '1':
+          name: string
+      end: \)
+      name: meta.production.output
+      patterns:
+      - include: '#bare-word'
+      - include: '#production-variable'
+    - include: '#comment'
+  production-variable:
+    captures:
+      '1':
+        name: keyword
+      '2':
+        name: variable
+    match: (=)([a-zA-Z0-9\-]+)
+    name: meta.production.variable
+  sgp:
+    begin: \((sgp)
+    captures:
+      '1':
+        name: keyword.sgp
+    end: \)
+    name: meta.sgp
+    patterns:
+    - match: :[a-z\-]+
+      name: constant.language.actr
+    - include: '#constant'
+    - include: '#numeric'
+    - include: '#bare-word'
+    - include: '#paren-expression'
+    - include: '#comment'
+  string:
+    begin: '"'
+    beginCaptures:
+      '0':
+        name: punctuation.definition.string.begin.lisp
+    end: '"'
+    endCaptures:
+      '0':
+        name: punctuation.definition.string.end.lisp
+    name: string.quoted.double.lisp
+    patterns:
+    - match: \\.
+      name: constant.character.escape.lisp
+  unspecified-dsl-call-name:
+    match: (?i:goal\-focus|clear\-all|spp|set\-base\-levels|set\-similarities|install\-device)
+    name: keyword
+scopeName: source.actr
