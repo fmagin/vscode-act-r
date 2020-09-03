@@ -6,9 +6,6 @@
       "include": "#model-definitions"
     },
     {
-      "include": "#production"
-    },
-    {
       "include": "#comment"
     },
     {
@@ -603,7 +600,7 @@
       ]
     },
     "unspecified-dsl-call-name": {
-      "match": "(?i:goal\\-focus|clear\\-all|spp|set\\-base\\-levels|set\\-similarities|install\\-device)",
+      "match": "(?i:goal\\-focus|clear\\-all|spp|set\\-base\\-levels|set\\-similarities|install\\-device|set\\-task)",
       "name": "keyword"
     }
   },

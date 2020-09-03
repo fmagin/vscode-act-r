@@ -333,6 +333,6 @@ repository:
     - match: \\.
       name: constant.character.escape.lisp
   unspecified-dsl-call-name:
-    match: (?i:goal\-focus|clear\-all|spp|set\-base\-levels|set\-similarities|install\-device)
+    match: (?i:goal\-focus|clear\-all|spp|set\-base\-levels|set\-similarities|install\-device|set\-task)
     name: keyword
 scopeName: source.actr
