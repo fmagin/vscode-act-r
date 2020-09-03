@@ -1,4 +1,6 @@
 node_modules/
 .vscode/**
+!.vscode/launch.json
+!.vscode/tasks.json
 .vscode-test/**
 vsc-extension-quickstart.md
