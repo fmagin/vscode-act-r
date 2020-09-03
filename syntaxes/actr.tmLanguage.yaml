@@ -267,9 +267,31 @@ repository:
     - begin: (!output!)\s+\(
       beginCaptures:
         '1':
-          name: string
+          name: keyword
       end: \)
       name: meta.production.output
+      patterns:
+      - include: '#bare-word'
+      - include: '#production-variable'
+    - begin: (!bind!)\s+(=\w+)
+      beginCaptures:
+        '1':
+          name: keyword
+        '2':
+          name: variable
+      end: \)
+      name: meta.production.bind
+      patterns:
+      - include: '#bare-word'
+      - include: '#production-variable'
+    - begin: (!eval!)\s+
+      beginCaptures:
+        '1':
+          name: keyword
+        '2':
+          name: variable
+      end: \)
+      name: meta.production.eval
       patterns:
       - include: '#bare-word'
       - include: '#production-variable'
