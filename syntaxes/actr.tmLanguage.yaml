@@ -1,6 +1,7 @@
 $schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
 name: ACT-R Model
 patterns:
+- include: '#production'
 - include: '#comment'
 - include: '#handled-dsl-call'
 - include: '#generic-dsl-call'

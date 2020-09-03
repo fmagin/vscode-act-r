@@ -3,6 +3,9 @@
   "name": "ACT-R Model",
   "patterns": [
     {
+      "include": "#production"
+    },
+    {
       "include": "#comment"
     },
     {
