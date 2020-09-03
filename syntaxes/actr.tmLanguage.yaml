@@ -176,7 +176,7 @@ repository:
     patterns:
     - include: '#expression'
   production:
-    begin: (\()(p|P) ((?:\w|\-)+)
+    begin: (\()(p|P) ((?:\w|\*|\-)+)
     beginCaptures:
       '1':
         name: meta.production.begin
